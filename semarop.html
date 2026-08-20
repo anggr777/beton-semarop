@@ -1,0 +1,2857 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SemarOP — Beton Struktural Rendah Karbon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ============================= TOKENS ============================= */
+      :root {
+        --ink: #17110f;
+        --ink-soft: #291f1b;
+        --ink-line: #3b2e28;
+        --paper: #eae5db;
+        --paper-2: #dad3c4;
+        --paper-3: #f4f1e9;
+        --red: #c22a2a;
+        --red-deep: #7e1e1e;
+        --red-bright: #e4432f;
+        --gold: #c08f2a;
+        --stone: #57636b;
+        --stone-dark: #37424a;
+        --green: #3e7a5b;
+        --ink-text: #221a16;
+        --paper-text: #f3eee3;
+        --muted: #7a7267;
+        --radius: 2px;
+        --display: "Archivo Black", "Archivo", sans-serif;
+        --body: "Archivo", sans-serif;
+        --mono: "Space Mono", monospace;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        font-family: var(--body);
+        background: var(--paper);
+        color: var(--ink-text);
+        -webkit-font-smoothing: antialiased;
+      }
+      img,
+      svg {
+        display: block;
+        max-width: 100%;
+      }
+      button {
+        font-family: inherit;
+        cursor: pointer;
+      }
+      input,
+      select {
+        font-family: inherit;
+      }
+      a {
+        color: inherit;
+      }
+      ::selection {
+        background: var(--red);
+        color: var(--paper-text);
+      }
+
+      .mono {
+        font-family: var(--mono);
+      }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--red);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .eyebrow::before {
+        content: "";
+        width: 18px;
+        height: 2px;
+        background: var(--red);
+        display: inline-block;
+      }
+
+      /* ============================= NAV ============================= */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: var(--ink);
+        border-bottom: 2px solid var(--red);
+      }
+      .topbar-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 24px;
+        gap: 16px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--paper-text);
+        font-family: var(--display);
+        font-size: 20px;
+        letter-spacing: 0.01em;
+        text-decoration: none;
+        flex-shrink: 0;
+      }
+      .brand .tag {
+        width: 12px;
+        height: 12px;
+        background: var(--red-bright);
+        transform: rotate(45deg);
+        flex-shrink: 0;
+      }
+      .brand small {
+        display: block;
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-top: 2px;
+      }
+      nav.mainnav {
+        display: flex;
+        gap: 2px;
+        flex-wrap: wrap;
+      }
+      nav.mainnav button {
+        background: none;
+        border: none;
+        color: var(--paper-text);
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 10px 14px;
+        border-bottom: 2px solid transparent;
+        opacity: 0.6;
+        transition:
+          opacity 0.15s,
+          border-color 0.15s,
+          background 0.15s;
+        white-space: nowrap;
+      }
+      nav.mainnav button:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      nav.mainnav button.active {
+        opacity: 1;
+        border-bottom-color: var(--red-bright);
+        color: #fff;
+      }
+      .navtoggle {
+        display: none;
+        background: none;
+        border: 1px solid var(--ink-line);
+        color: var(--paper-text);
+        padding: 8px 10px;
+      }
+
+      /* ============================= LAYOUT ============================= */
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+        animation: fadein 0.35s ease;
+      }
+      @keyframes fadein {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      section {
+        padding: 72px 0;
+      }
+      section.tight {
+        padding: 48px 0;
+      }
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--display);
+        margin: 0 0 0.4em 0;
+        font-weight: 400;
+        line-height: 1.05;
+      }
+      h2 {
+        font-size: clamp(28px, 4vw, 42px);
+        text-transform: uppercase;
+        letter-spacing: -0.01em;
+      }
+      h3 {
+        font-size: 20px;
+        text-transform: uppercase;
+      }
+      p {
+        line-height: 1.65;
+        color: var(--ink-text);
+      }
+      .lede {
+        font-size: 18px;
+        color: var(--muted);
+        max-width: 640px;
+        line-height: 1.6;
+      }
+
+      /* ============================= HERO ============================= */
+      .hero {
+        background:
+          radial-gradient(
+            ellipse at 15% 0%,
+            rgba(194, 42, 42, 0.35),
+            transparent 55%
+          ),
+          linear-gradient(180deg, var(--ink) 0%, #1e1613 100%);
+        color: var(--paper-text);
+        position: relative;
+        overflow: hidden;
+        border-bottom: 2px solid var(--red);
+      }
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.035) 0 1px,
+            transparent 1px 64px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.035) 0 1px,
+            transparent 1px 64px
+          );
+        pointer-events: none;
+      }
+      .hero-inner {
+        position: relative;
+        z-index: 1;
+        padding: 96px 24px 64px;
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 56px;
+        align-items: end;
+      }
+      .hero h1 {
+        font-size: clamp(40px, 6.4vw, 86px);
+        text-transform: uppercase;
+        letter-spacing: -0.01em;
+        margin: 18px 0 20px;
+      }
+      .hero h1 em {
+        font-style: normal;
+        color: var(--red-bright);
+      }
+      .hero p.lede {
+        color: #cfc6ba;
+        font-size: 17px;
+      }
+      .hero-cta {
+        display: flex;
+        gap: 12px;
+        margin-top: 32px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 22px;
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 1px solid currentColor;
+        background: none;
+        transition:
+          transform 0.15s,
+          background 0.15s,
+          color 0.15s;
+      }
+      .btn-primary {
+        background: var(--red);
+        border-color: var(--red);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--red-bright);
+        transform: translateY(-2px);
+      }
+      .btn-ghost {
+        color: var(--paper-text);
+      }
+      .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-2px);
+      }
+      .btn-dark {
+        color: var(--ink);
+        border-color: var(--ink);
+      }
+      .btn-dark:hover {
+        background: var(--ink);
+        color: #fff;
+      }
+
+      /* batch tag card - signature element */
+      .batchtag {
+        background: var(--ink-soft);
+        border: 1px solid var(--ink-line);
+        padding: 22px;
+        position: relative;
+      }
+      .batchtag::before {
+        content: "BATCH REF — SMR/OP/01";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        background: var(--red);
+        color: #fff;
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        padding: 4px 8px;
+      }
+      .batchtag-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 26px;
+      }
+      .stat {
+        border-top: 1px solid var(--ink-line);
+        padding-top: 10px;
+      }
+      .stat b {
+        display: block;
+        font-family: var(--mono);
+        font-size: 30px;
+        color: var(--paper-text);
+        line-height: 1;
+      }
+      .stat b span {
+        font-size: 15px;
+        color: var(--muted);
+      }
+      .stat small {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* composition ribbon - recurring signature motif */
+      .ribbon {
+        display: flex;
+        width: 100%;
+        height: 22px;
+        overflow: hidden;
+        border: 1px solid var(--ink-line);
+      }
+      .ribbon .seg {
+        height: 100%;
+        transition: width 0.3s;
+      }
+      .ribbon-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 10px;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        letter-spacing: 0.03em;
+      }
+      .ribbon-legend .dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        margin-right: 6px;
+        position: relative;
+        top: 1px;
+      }
+      .c-semen {
+        background: var(--red);
+      }
+      .c-abusekam {
+        background: var(--gold);
+      }
+      .c-pasir {
+        background: #9aa6ac;
+      }
+      .c-kerikil {
+        background: var(--stone);
+      }
+      .c-granit {
+        background: var(--stone-dark);
+      }
+      .c-beton {
+        background: var(--ink);
+      }
+      .c-air {
+        background: #7fa9c9;
+      }
+
+      /* ============================= FEATURE GRID (home) ============================= */
+      .grid3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--ink-line);
+        border: 1px solid var(--ink-line);
+      }
+      .feature {
+        background: var(--paper-3);
+        padding: 32px 26px;
+        transition: background 0.15s;
+        cursor: pointer;
+        position: relative;
+      }
+      .feature:hover {
+        background: #fff;
+      }
+      .feature .num {
+        font-family: var(--mono);
+        color: var(--red);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+      }
+      .feature h4 {
+        font-family: var(--display);
+        font-size: 19px;
+        text-transform: uppercase;
+        margin: 14px 0 10px;
+      }
+      .feature p {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0 0 16px;
+      }
+      .feature .go {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .feature:hover .go {
+        color: var(--red);
+      }
+
+      .section-alt {
+        background: var(--paper-2);
+      }
+      .section-dark {
+        background: var(--ink);
+        color: var(--paper-text);
+      }
+      .section-dark h2 {
+        color: #fff;
+      }
+      .section-dark p {
+        color: #cfc6ba;
+      }
+
+      /* ============================= TENTANG ============================= */
+      .about-grid {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 56px;
+        align-items: start;
+      }
+      .pillar-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border-top: 1px solid var(--ink-line);
+      }
+      .pillar {
+        display: grid;
+        grid-template-columns: 60px 1fr;
+        gap: 18px;
+        padding: 22px 0;
+        border-bottom: 1px solid var(--paper-2);
+      }
+      .pillar .idx {
+        font-family: var(--mono);
+        color: var(--red);
+        font-size: 13px;
+        padding-top: 2px;
+      }
+      .pillar h4 {
+        margin: 0 0 6px;
+        font-size: 16px;
+        text-transform: uppercase;
+      }
+      .pillar p {
+        font-size: 14px;
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .stat-strip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--ink-line);
+        border: 1px solid var(--ink-line);
+        margin-top: 40px;
+      }
+      .stat-strip .cell {
+        background: var(--ink);
+        color: #fff;
+        padding: 26px 22px;
+      }
+      .stat-strip .cell b {
+        font-family: var(--mono);
+        font-size: 34px;
+        display: block;
+        color: var(--red-bright);
+      }
+      .stat-strip .cell small {
+        font-family: var(--mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+      }
+
+      .quote-block {
+        border-left: 3px solid var(--red);
+        padding: 4px 0 4px 22px;
+        margin: 28px 0;
+        font-size: 16px;
+        color: var(--ink-text);
+      }
+
+      .refbox {
+        background: var(--paper-3);
+        border: 1px solid var(--paper-2);
+        padding: 22px;
+        margin-top: 20px;
+      }
+      .refbox h4 {
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+      .refbox ul {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      /* ============================= APP PAGES (calculators) ============================= */
+      .app-head {
+        background: var(--ink);
+        color: var(--paper-text);
+        padding: 40px 0 34px;
+        border-bottom: 2px solid var(--red);
+      }
+      .app-head h2 {
+        color: #fff;
+        margin-bottom: 6px;
+      }
+      .app-head p {
+        color: #b9afa2;
+        max-width: 640px;
+      }
+      .crumbs {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+
+      .app-body {
+        padding: 44px 0 90px;
+      }
+      .panel-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.15fr;
+        gap: 1px;
+        background: var(--ink-line);
+        border: 1px solid var(--ink-line);
+        align-items: start;
+      }
+      .panel {
+        background: var(--paper-3);
+        padding: 30px;
+      }
+      .panel + .panel {
+        background: #fff;
+      }
+      .panel h3 {
+        font-size: 15px;
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .panel h3::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        background: var(--red);
+        display: inline-block;
+      }
+
+      .field {
+        margin-bottom: 18px;
+      }
+      .field label {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: var(--stone-dark);
+        margin-bottom: 6px;
+      }
+      .field label .val {
+        color: var(--red);
+        font-weight: 700;
+        font-size: 12px;
+      }
+      .field input[type="number"],
+      .field select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--paper-2);
+        background: #fff;
+        font-family: var(--mono);
+        font-size: 14px;
+        color: var(--ink-text);
+        border-radius: var(--radius);
+      }
+      .field input[type="number"]:focus,
+      .field select:focus {
+        outline: none;
+        border-color: var(--red);
+      }
+      .field input[type="range"] {
+        width: 100%;
+        accent-color: var(--red);
+      }
+      .field small.hint {
+        display: block;
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-top: 5px;
+        line-height: 1.5;
+      }
+      .field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .field-row3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+      }
+      .field.redcell label .val {
+        color: var(--red);
+      }
+      .field.redcell {
+        position: relative;
+        padding-left: 12px;
+        border-left: 3px solid var(--red);
+      }
+      .subhead {
+        font-family: var(--mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--red);
+        margin: 26px 0 12px;
+        padding-top: 18px;
+        border-top: 1px dashed var(--paper-2);
+      }
+      .subhead:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+      }
+      .sumcheck {
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 8px 10px;
+        margin-top: 4px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .sumcheck.ok {
+        background: #e7efe9;
+        color: var(--green);
+      }
+      .sumcheck.bad {
+        background: #f7e4e1;
+        color: var(--red-deep);
+      }
+
+      .tabbtns {
+        display: flex;
+        gap: 0;
+        margin-bottom: 22px;
+        border-bottom: 1px solid var(--paper-2);
+      }
+      .tabbtns button {
+        background: none;
+        border: none;
+        padding: 10px 4px;
+        margin-right: 22px;
+        font-family: var(--mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        border-bottom: 2px solid transparent;
+      }
+      .tabbtns button.active {
+        color: var(--ink);
+        border-color: var(--red);
+      }
+
+      table.datatable {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      table.datatable th {
+        text-align: left;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        padding: 8px 6px;
+        border-bottom: 1px solid var(--ink);
+      }
+      table.datatable td {
+        padding: 9px 6px;
+        border-bottom: 1px solid var(--paper-2);
+        font-family: var(--mono);
+      }
+      table.datatable td.label {
+        font-family: var(--body);
+        font-weight: 600;
+      }
+      table.datatable tr.total td {
+        border-top: 2px solid var(--ink);
+        border-bottom: none;
+        font-weight: 700;
+        padding-top: 12px;
+      }
+      table.datatable td.num {
+        text-align: right;
+      }
+
+      .resultcard {
+        background: var(--ink);
+        color: #fff;
+        padding: 26px;
+        margin-bottom: 22px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+      .resultcard .rc {
+        border-left: 2px solid var(--red);
+        padding-left: 14px;
+      }
+      .resultcard .rc b {
+        font-family: var(--mono);
+        font-size: 24px;
+        display: block;
+        color: var(--red-bright);
+      }
+      .resultcard .rc small {
+        font-family: var(--mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+      }
+
+      .badge {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 3px 8px;
+        background: var(--gold);
+        color: #fff;
+      }
+      .badge.stone {
+        background: var(--stone);
+      }
+
+      .compare-bar {
+        margin-bottom: 14px;
+      }
+      .compare-bar .cb-label {
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--mono);
+        font-size: 11px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+      }
+      .cb-track {
+        height: 26px;
+        background: var(--paper-2);
+        position: relative;
+      }
+      .cb-fill {
+        height: 100%;
+        background: var(--stone);
+        position: relative;
+        transition: width 0.4s;
+      }
+      .cb-fill.op {
+        background: var(--red);
+      }
+      .cb-fill .cb-val {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: var(--mono);
+        font-size: 11px;
+        color: #fff;
+      }
+
+      .savebox {
+        border: 1px solid var(--green);
+        background: #eef5f0;
+        padding: 18px 22px;
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .savebox b {
+        font-family: var(--mono);
+        color: var(--green);
+        font-size: 22px;
+      }
+      .savebox span {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .materialcard {
+        border: 1px solid var(--paper-2);
+        background: #fff;
+        padding: 18px;
+        margin-bottom: 14px;
+      }
+      .materialcard .mc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .materialcard .mc-top h4 {
+        font-size: 13px;
+        text-transform: uppercase;
+        margin: 0;
+        font-family: var(--mono);
+        letter-spacing: 0.05em;
+      }
+      .materialcard select {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .mc-specs {
+        display: flex;
+        gap: 18px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        flex-wrap: wrap;
+      }
+      .mc-specs b {
+        color: var(--ink-text);
+      }
+
+      .footer {
+        background: var(--ink);
+        color: var(--muted);
+        padding: 40px 0;
+        border-top: 2px solid var(--red);
+      }
+      .footer .wrap {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: center;
+      }
+      .footer .brand {
+        font-size: 16px;
+      }
+      .footer p {
+        color: var(--muted);
+        font-size: 12px;
+        margin: 0;
+        font-family: var(--mono);
+      }
+
+      .note-inline {
+        font-size: 12px;
+        color: var(--muted);
+        background: var(--paper-2);
+        padding: 10px 14px;
+        margin-top: 10px;
+        line-height: 1.6;
+      }
+      .note-inline b {
+        color: var(--ink-text);
+      }
+
+      @media (max-width: 920px) {
+        .hero-inner {
+          grid-template-columns: 1fr;
+          gap: 32px;
+          padding-top: 60px;
+        }
+        .grid3 {
+          grid-template-columns: 1fr;
+        }
+        .about-grid {
+          grid-template-columns: 1fr;
+        }
+        .panel-grid {
+          grid-template-columns: 1fr;
+        }
+        .stat-strip {
+          grid-template-columns: 1fr;
+        }
+        .resultcard {
+          grid-template-columns: 1fr;
+        }
+        .field-row,
+        .field-row3 {
+          grid-template-columns: 1fr;
+        }
+        nav.mainnav {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--ink);
+          flex-direction: column;
+          border-top: 1px solid var(--ink-line);
+        }
+        nav.mainnav.open {
+          display: flex;
+        }
+        .navtoggle {
+          display: block;
+        }
+        .topbar-inner {
+          position: relative;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============================= TOPBAR ============================= -->
+    <div class="topbar">
+      <div class="topbar-inner wrap" style="padding-left: 0; padding-right: 0">
+        <a href="#" class="brand" data-nav="home"
+          ><span class="tag"></span>SEMAR<span style="color: var(--red-bright)"
+            >OP</span
+          ><small>Multi-Waste Upcycling Concrete</small></a
+        >
+        <button class="navtoggle" id="navToggle">MENU</button>
+        <nav class="mainnav" id="mainNav">
+          <button data-nav="home" class="active">Beranda</button>
+          <button data-nav="tentang">Tentang SemarOP</button>
+          <button data-nav="material">Data Material</button>
+          <button data-nav="mixdesign">Mix Design</button>
+          <button data-nav="rab">RAB</button>
+          <button data-nav="karbon">Emisi Karbon</button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- ============================= HOME ============================= -->
+    <div class="view active" id="view-home">
+      <div class="hero">
+        <div class="hero-inner">
+          <div>
+            <div class="eyebrow">Beton Struktural Rendah Karbon</div>
+            <h1>Limbah jadi<br /><em>beton struktural.</em></h1>
+            <p class="lede">
+              SemarOP mensubstitusi sebagian semen dan agregat dengan limbah
+              beton, limbah granit, dan abu sekam padi — tanpa mengorbankan kuat
+              tekan. Satu platform untuk menyusun mix design, menghitung RAB,
+              dan mengukur jejak karbonnya secara otomatis.
+            </p>
+            <div class="hero-cta">
+              <button class="btn btn-primary" data-nav="mixdesign">
+                Susun Mix Design →
+              </button>
+              <button class="btn btn-ghost" data-nav="tentang">
+                Baca Riset Lengkap
+              </button>
+            </div>
+          </div>
+          <div class="batchtag">
+            <div class="eyebrow" style="color: var(--muted)">
+              Ringkasan Hasil Uji
+            </div>
+            <div class="batchtag-grid">
+              <div class="stat">
+                <b>25,84<span>MPa</span></b
+                ><small>Kuat Tekan Umur 28 Hari</small>
+              </div>
+              <div class="stat">
+                <b>19,15<span>%</span></b
+                ><small>Efisiensi Emisi Karbon</small>
+              </div>
+              <div class="stat">
+                <b>22,14<span>%</span></b
+                ><small>Penghematan Biaya Produksi</small>
+              </div>
+              <div class="stat">
+                <b>3<span>Limbah</span></b
+                ><small>Beton · Granit · Sekam Padi</small>
+              </div>
+            </div>
+            <div style="margin-top: 22px">
+              <div
+                class="eyebrow"
+                style="color: var(--muted); margin-bottom: 8px"
+              >
+                Komposisi Acuan Binder+Agregat
+              </div>
+              <div class="ribbon" id="heroRibbon"></div>
+              <div class="ribbon-legend" id="heroLegend"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section>
+        <div class="wrap">
+          <div class="eyebrow">Yang Bisa Kamu Lakukan di Sini</div>
+          <h2 style="margin-top: 10px">Satu Beton, Tiga Kalkulator</h2>
+          <p class="lede" style="margin-bottom: 44px">
+            Ubah proporsi material dan langsung lihat dampaknya ke kekuatan
+            campuran, anggaran biaya, dan emisi karbon — tanpa buka spreadsheet.
+          </p>
+        </div>
+        <div class="wrap">
+          <div class="grid3">
+            <div class="feature" data-nav="material">
+              <div class="num">01 / DATA MATERIAL</div>
+              <h4>Pilih material</h4>
+              <p>
+                Pilih merek semen, jenis pasir, kerikil, dan limbah dari data
+                uji lab kami. Berat jenis dan spesifikasi terisi otomatis.
+              </p>
+              <div class="go">Buka Data Material →</div>
+            </div>
+            <div class="feature" data-nav="mixdesign">
+              <div class="num">02 / MIX DESIGN</div>
+              <h4>Rancang Komposisi</h4>
+              <p>
+                Atur FAS, jumlah air, jenis cetakan (mould), dan persentase
+                substitusi tiap kategori material. Rekapitulasi kebutuhan per m³
+                dihitung langsung.
+              </p>
+              <div class="go">Buka Mix Design →</div>
+            </div>
+            <div class="feature" data-nav="rab">
+              <div class="num">03 / RAB OTOMATIS</div>
+              <h4>Hitung Anggaran</h4>
+              <p>
+                Bandingkan biaya produksi SemarOP dengan beton konvensional
+                berbasis koefisien AHSP, lengkap dengan estimasi penghematan.
+              </p>
+              <div class="go">Buka RAB →</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-dark">
+        <div
+          class="wrap"
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 56px;
+            align-items: center;
+          "
+        >
+          <div>
+            <div class="eyebrow">04 / Emisi Karbon</div>
+            <h2 style="margin-top: 10px">
+              Setiap m³ Punya Jejak Karbon.<br />Ukur, Jangan Kira-Kira.
+            </h2>
+            <p style="max-width: 480px">
+              Produksi semen menyumbang sekitar 7–8% emisi CO₂ dunia. Kalkulator
+              emisi SemarOP membandingkan jejak karbon campuran inovasi dengan
+              beton normal secara real-time, mengikuti pendekatan Life Cycle
+              Assessment (LCA) yang dipakai dalam riset ini.
+            </p>
+            <button
+              class="btn btn-primary"
+              data-nav="karbon"
+              style="margin-top: 20px"
+            >
+              Hitung Emisi Karbon →
+            </button>
+          </div>
+          <div class="stat-strip" style="margin-top: 0">
+            <div class="cell">
+              <b id="homeEmisiNormal">–</b><small>Beton Normal (relatif)</small>
+            </div>
+            <div class="cell">
+              <b id="homeEmisiOP">–</b><small>Beton SemarOP (relatif)</small>
+            </div>
+            <div class="cell">
+              <b id="homeEmisiSaving">–</b><small>Efisiensi Karbon</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="wrap">
+          <div class="eyebrow">Kenapa SemarOP</div>
+          <h2 style="margin-top: 10px; margin-bottom: 36px">
+            Circular Economy, Bukan Sekadar Slogan
+          </h2>
+          <div
+            class="grid3"
+            style="background: var(--paper-2); border-color: var(--paper-2)"
+          >
+            <div class="feature" style="background: #fff; cursor: default">
+              <div class="num" style="color: var(--stone)">LIMBAH BETON</div>
+              <h4>Bongkaran Struktur Lama</h4>
+              <p>
+                Puing beton hasil pembongkaran/demolisi diolah menjadi agregat
+                kasar pengganti sebagian kerikil.
+              </p>
+            </div>
+            <div class="feature" style="background: #fff; cursor: default">
+              <div class="num" style="color: var(--stone-dark)">
+                LIMBAH GRANIT
+              </div>
+              <h4>Sisa Industri Pemotongan Batu</h4>
+              <p>
+                Potongan dan serpihan granit dari industri finishing bangunan
+                menjadi agregat kasar dominan pada campuran.
+              </p>
+            </div>
+            <div class="feature" style="background: #fff; cursor: default">
+              <div class="num" style="color: var(--gold)">ABU SEKAM PADI</div>
+              <h4>Limbah Pertanian</h4>
+              <p>
+                Abu hasil pembakaran sekam padi mensubstitusi sebagian semen
+                pada komponen binder, menurunkan konsumsi klinker.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================= TENTANG ============================= -->
+    <div class="view" id="view-tentang">
+      <div class="app-head">
+        <div class="wrap">
+          <div class="crumbs">Beranda / Tentang SemarOP</div>
+          <h2>Multi-Waste Upcycling Concrete</h2>
+          <p>
+            Beton struktural ekonomis dan rendah karbon berbasis substitusi
+            limbah beton, granit, dan abu sekam padi.
+          </p>
+        </div>
+      </div>
+
+      <section>
+        <div class="wrap about-grid">
+          <div>
+            <div class="eyebrow">Latar Belakang</div>
+            <h3 style="margin-top: 10px">Beton Butuh Diet Karbon</h3>
+            <p>
+              Pembangunan infrastruktur yang terus tumbuh mendorong kebutuhan
+              beton sebagai material struktural utama. Masalahnya, produksi
+              semen menyumbang sekitar 7–8% emisi CO₂ dunia, sementara material
+              konvensional lain memicu eksploitasi sumber daya alam secara masif
+              dan menumpuknya limbah konstruksi, granit, serta pertanian yang
+              belum dimanfaatkan optimal.
+            </p>
+            <p>
+              SemarOP lahir dari kebutuhan itu: menurunkan emisi karbon dan
+              biaya produksi beton, tanpa mengorbankan kinerja struktural yang
+              disyaratkan.
+            </p>
+
+            <div class="quote-block">
+              Ketersediaan limbah beton, limbah granit, dan abu sekam padi di
+              Indonesia melimpah dan kerap berakhir sebagai timbunan tanpa nilai
+              tambah — inilah peluang besar bagi penerapan
+              <i>circular economy</i> di industri konstruksi.
+            </div>
+
+            <div class="eyebrow">Tantangan Teknis</div>
+            <h3 style="margin-top: 10px">Bukan Sekadar “Ganti Bahan”</h3>
+            <p>
+              Setiap sumber limbah punya karakter fisik dan kimia yang
+              berbeda-beda. Substitusi ini menuntut penyesuaian mix design yang
+              cermat agar limbah konstruksi dan pertanian tetap bisa
+              dimanfaatkan secara struktural, bukan sekadar filler.
+            </p>
+          </div>
+
+          <div>
+            <div class="eyebrow">Metode Perancangan</div>
+            <h3 style="margin-top: 10px">Acuan SNI 7656:2012</h3>
+            <p>
+              Mix design SemarOP dirancang mengikuti SNI 7656:2012 dengan target
+              kuat tekan rencana 25 MPa. Komposisi acuan hasil riset:
+            </p>
+
+            <div class="pillar-list">
+              <div class="pillar">
+                <div class="idx">BND</div>
+                <div>
+                  <h4>Binder — 80% Semen : 20% Abu Sekam Padi</h4>
+                  <p>
+                    Abu sekam padi menggantikan sebagian semen Portland pada
+                    komponen pengikat.
+                  </p>
+                </div>
+              </div>
+              <div class="pillar">
+                <div class="idx">AGK</div>
+                <div>
+                  <h4>Agregat Kasar — 45% Kerikil : 50% Granit : 5% Beton</h4>
+                  <p>
+                    Limbah granit mendominasi agregat kasar, didukung limbah
+                    beton bongkaran dan kerikil alami.
+                  </p>
+                </div>
+              </div>
+              <div class="pillar">
+                <div class="idx">AGH</div>
+                <div>
+                  <h4>Agregat Halus — 100% Pasir</h4>
+                  <p>
+                    Fraksi halus tetap menggunakan pasir alami tanpa substitusi
+                    limbah.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="stat-strip">
+              <div class="cell">
+                <b>25,84 MPa</b><small>Kuat Tekan Rata-Rata 28 Hari</small>
+              </div>
+              <div class="cell">
+                <b>19,15%</b
+                ><small>Efisiensi Karbon vs Beton Normal (LCA)</small>
+              </div>
+              <div class="cell">
+                <b>22,14%</b><small>Penghematan Biaya vs Beton Normal</small>
+              </div>
+            </div>
+
+            <p style="margin-top: 24px">
+              Hasil ini menunjukkan SemarOP mampu memenuhi kinerja struktural
+              yang disyaratkan, sekaligus memberi efisiensi emisi karbon dan
+              ekonomi secara bersamaan — alternatif material konstruksi yang
+              ramah lingkungan, ekonomis, dan aplikatif untuk mendukung
+              konstruksi berkelanjutan di Indonesia, termasuk target penurunan
+              emisi nasional pada sektor konstruksi.
+            </p>
+
+            <div class="refbox">
+              <h4 class="mono">Kata Kunci Riset</h4>
+              <ul>
+                <li>Multi-waste upcycling concrete</li>
+                <li>Limbah beton, limbah granit, limbah abu sekam padi</li>
+                <li>Beton struktural rendah karbon</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-alt">
+        <div class="wrap" style="text-align: center">
+          <div class="eyebrow" style="justify-content: center">
+            Coba Sekarang
+          </div>
+          <h2 style="margin-top: 10px">Susun Campuranmu Sendiri</h2>
+          <p class="lede" style="margin: 0 auto 28px; text-align: center">
+            Ubah persentase substitusi limbah dan lihat langsung dampaknya
+            terhadap kebutuhan material, RAB, dan emisi karbon.
+          </p>
+          <button class="btn btn-dark" data-nav="mixdesign">
+            Mulai dari Data Material →
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================= DATA MATERIAL ============================= -->
+    <div class="view" id="view-material">
+      <div class="app-head">
+        <div class="wrap">
+          <div class="crumbs">Beranda / Data Material</div>
+          <h2>Data Material</h2>
+          <p>
+            Pilih sumber tiap material dari data uji laboratorium SemarOP. Berat
+            jenis, satuan, dan harga acuan terisi otomatis — tidak perlu input
+            angka manual.
+          </p>
+        </div>
+      </div>
+      <section class="app-body">
+        <div class="wrap">
+          <div
+            id="materialCards"
+            style="
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 18px;
+            "
+          ></div>
+          <div class="note-inline">
+            <b>Catatan:</b> Data berat jenis (BJ) di atas berasal dari pengujian
+            lab (SSD/Loose) pada sheet
+            <span class="mono">DATA MATERIAL</span> riset SemarOP. Daftar
+            merek/sumber material dirancang bisa ditambah — saat ini tiap
+            kategori menampilkan sumber yang sudah diuji dan tervalidasi untuk
+            mix design 25 MPa.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================= MIX DESIGN ============================= -->
+    <div class="view" id="view-mixdesign">
+      <div class="app-head">
+        <div class="wrap">
+          <div class="crumbs">Beranda / Mix Design</div>
+          <h2>Mix Design</h2>
+          <p>
+            Atur ketentuan awal, jenis cetakan (mould), dan persentase
+            substitusi tiap kategori material. Kolom bertanda garis merah adalah
+            parameter substitusi utama SemarOP.
+          </p>
+        </div>
+      </div>
+      <section class="app-body">
+        <div class="wrap">
+          <div class="panel-grid">
+            <!-- INPUT PANEL -->
+            <div class="panel">
+              <h3>Ketentuan Awal</h3>
+              <div class="field-row">
+                <div class="field">
+                  <label
+                    >f'c Rencana
+                    <span class="val" id="v_fc">25</span> MPa</label
+                  >
+                  <input
+                    type="number"
+                    id="i_fc"
+                    value="25"
+                    step="0.5"
+                    min="10"
+                    max="60"
+                  />
+                </div>
+                <div class="field">
+                  <label
+                    >Standar Deviasi (Sd)
+                    <span class="val" id="v_sd">4.5</span></label
+                  >
+                  <input
+                    type="number"
+                    id="i_sd"
+                    value="4.5"
+                    step="0.1"
+                    min="0"
+                    max="10"
+                  />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label
+                    >FAS / w-c Ratio
+                    <span class="val" id="v_fas">0.49</span></label
+                  >
+                  <input
+                    type="number"
+                    id="i_fas"
+                    value="0.49"
+                    step="0.01"
+                    min="0.3"
+                    max="0.8"
+                  />
+                </div>
+                <div class="field">
+                  <label
+                    >Jumlah Air
+                    <span class="val" id="v_air">190</span> L/m³</label
+                  >
+                  <input
+                    type="number"
+                    id="i_air"
+                    value="190"
+                    step="1"
+                    min="120"
+                    max="260"
+                  />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label
+                    >Ukuran Agregat Maks
+                    <span class="val" id="v_agmax">25</span> mm</label
+                  >
+                  <input
+                    type="number"
+                    id="i_agmax"
+                    value="25"
+                    step="1"
+                    min="10"
+                    max="40"
+                  />
+                </div>
+                <div class="field">
+                  <label
+                    >Kadar Udara
+                    <span class="val" id="v_udara">0</span> %</label
+                  >
+                  <input
+                    type="number"
+                    id="i_udara"
+                    value="0"
+                    step="0.5"
+                    min="0"
+                    max="8"
+                  />
+                </div>
+              </div>
+
+              <div class="subhead">Komposisi Binder (Sel Merah)</div>
+              <div class="field redcell">
+                <label
+                  >Semen dari Binder
+                  <span class="val" id="v_semenBinder">80</span> %</label
+                >
+                <input
+                  type="range"
+                  id="i_semenBinder"
+                  min="50"
+                  max="100"
+                  value="80"
+                  step="1"
+                />
+              </div>
+              <div class="field redcell">
+                <label
+                  >Abu Sekam Padi dari Binder
+                  <span class="val" id="v_abuBinder">20</span> %</label
+                >
+                <input
+                  type="range"
+                  id="i_abuBinder"
+                  min="0"
+                  max="50"
+                  value="20"
+                  step="1"
+                />
+              </div>
+              <div class="sumcheck ok" id="sumBinder">
+                Total Binder: 100% <span>OK</span>
+              </div>
+
+              <div class="subhead">Rasio Agregat Kasar : Halus</div>
+              <div class="field">
+                <label
+                  >Agregat Kasar dari Total Agregat
+                  <span class="val" id="v_kasarTotal">60</span> %</label
+                >
+                <input
+                  type="range"
+                  id="i_kasarTotal"
+                  min="40"
+                  max="75"
+                  value="60"
+                  step="1"
+                />
+                <small class="hint"
+                  >Sisanya otomatis menjadi porsi agregat halus (pasir).</small
+                >
+              </div>
+
+              <div class="subhead">Komposisi Agregat Kasar (Sel Merah)</div>
+              <div class="field redcell">
+                <label
+                  >Kerikil <span class="val" id="v_kerikil">45</span> %</label
+                >
+                <input
+                  type="range"
+                  id="i_kerikil"
+                  min="0"
+                  max="100"
+                  value="45"
+                  step="1"
+                />
+              </div>
+              <div class="field redcell">
+                <label
+                  >Limbah Granit
+                  <span class="val" id="v_granit">50</span> %</label
+                >
+                <input
+                  type="range"
+                  id="i_granit"
+                  min="0"
+                  max="100"
+                  value="50"
+                  step="1"
+                />
+              </div>
+              <div class="field redcell">
+                <label
+                  >Limbah Beton <span class="val" id="v_beton">5</span> %</label
+                >
+                <input
+                  type="range"
+                  id="i_beton"
+                  min="0"
+                  max="100"
+                  value="5"
+                  step="1"
+                />
+              </div>
+              <div class="sumcheck ok" id="sumKasar">
+                Total Agregat Kasar: 100% <span>OK</span>
+              </div>
+
+              <div class="subhead">Komposisi Agregat Halus (Sel Merah)</div>
+              <div class="field redcell">
+                <label
+                  >Pasir <span class="val" id="v_pasirHalus">100</span> %</label
+                >
+                <input
+                  type="range"
+                  id="i_pasirHalus"
+                  min="0"
+                  max="100"
+                  value="100"
+                  step="1"
+                />
+                <small class="hint"
+                  >Porsi sisanya (bila &lt;100%) tersedia untuk fraksi halus
+                  alternatif di masa depan.</small
+                >
+              </div>
+
+              <div class="subhead">Mould &amp; Faktor Keamanan</div>
+              <div class="field">
+                <label>Jenis Mould</label>
+                <select id="i_mouldTipe">
+                  <option value="silinder" selected>Silinder</option>
+                  <option value="kubus">Kubus</option>
+                  <option value="balok">Balok</option>
+                </select>
+              </div>
+              <div id="mouldDimsSilinder" class="field-row">
+                <div class="field">
+                  <label>Diameter (m)</label
+                  ><input
+                    type="number"
+                    id="i_mould_d"
+                    value="0.15"
+                    step="0.01"
+                    min="0.05"
+                    max="0.5"
+                  />
+                </div>
+                <div class="field">
+                  <label>Tinggi (m)</label
+                  ><input
+                    type="number"
+                    id="i_mould_t"
+                    value="0.30"
+                    step="0.01"
+                    min="0.05"
+                    max="1"
+                  />
+                </div>
+              </div>
+              <div id="mouldDimsKubus" class="field" style="display: none">
+                <label>Sisi Kubus (m)</label
+                ><input
+                  type="number"
+                  id="i_mould_s"
+                  value="0.15"
+                  step="0.01"
+                  min="0.05"
+                  max="0.5"
+                />
+              </div>
+              <div id="mouldDimsBalok" class="field-row3" style="display: none">
+                <div class="field">
+                  <label>Panjang (m)</label
+                  ><input
+                    type="number"
+                    id="i_mould_p"
+                    value="0.15"
+                    step="0.01"
+                    min="0.05"
+                    max="1"
+                  />
+                </div>
+                <div class="field">
+                  <label>Lebar (m)</label
+                  ><input
+                    type="number"
+                    id="i_mould_l"
+                    value="0.15"
+                    step="0.01"
+                    min="0.05"
+                    max="1"
+                  />
+                </div>
+                <div class="field">
+                  <label>Tinggi (m)</label
+                  ><input
+                    type="number"
+                    id="i_mould_h"
+                    value="0.15"
+                    step="0.01"
+                    min="0.05"
+                    max="1"
+                  />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Jumlah Mould</label
+                  ><input
+                    type="number"
+                    id="i_jumlahMould"
+                    value="6"
+                    step="1"
+                    min="1"
+                    max="100"
+                  />
+                </div>
+                <div class="field">
+                  <label>Faktor Keamanan (SF)</label
+                  ><input
+                    type="number"
+                    id="i_sf"
+                    value="1.35"
+                    step="0.05"
+                    min="1"
+                    max="2"
+                  />
+                </div>
+              </div>
+
+              <div class="subhead">Volume Produksi Aktual</div>
+              <div class="field">
+                <label
+                  >Volume Beton yang Dicor
+                  <span class="val" id="v_volproduksi">1</span> m³</label
+                >
+                <input
+                  type="number"
+                  id="i_volproduksi"
+                  value="1"
+                  step="0.5"
+                  min="0.1"
+                  max="1000"
+                />
+                <small class="hint"
+                  >Dipakai untuk skala total kebutuhan material di RAB dan
+                  produksi penuh (di luar kebutuhan sampel mould).</small
+                >
+              </div>
+            </div>
+
+            <!-- RESULT PANEL -->
+            <div class="panel">
+              <h3>Rekapitulasi per m³</h3>
+
+              <div class="resultcard">
+                <div class="rc">
+                  <b id="r_binder">–</b><small>Binder (kg/m³)</small>
+                </div>
+                <div class="rc">
+                  <b id="r_agregat">–</b><small>Agregat (kg/m³)</small>
+                </div>
+                <div class="rc">
+                  <b id="r_unitweight">–</b><small>Unit Weight (kg/m³)</small>
+                </div>
+              </div>
+
+              <div class="ribbon" id="mdRibbon" style="height: 28px"></div>
+              <div
+                class="ribbon-legend"
+                id="mdLegend"
+                style="margin-bottom: 24px"
+              ></div>
+
+              <table class="datatable">
+                <thead>
+                  <tr>
+                    <th>Material</th>
+                    <th class="num">kg/m³</th>
+                    <th class="num">Volume (m³)</th>
+                  </tr>
+                </thead>
+                <tbody id="mdTableBody"></tbody>
+              </table>
+
+              <div class="subhead">Kebutuhan Mixing per Mould</div>
+              <table class="datatable">
+                <thead>
+                  <tr>
+                    <th>Material</th>
+                    <th class="num">1 Mould (kg)</th>
+                    <th class="num" id="mdMouldTotalHead">Total (kg)</th>
+                  </tr>
+                </thead>
+                <tbody id="mdMouldBody"></tbody>
+              </table>
+              <small
+                class="hint"
+                id="mdMouldVolHint"
+                style="display: block; margin-top: 8px"
+              ></small>
+
+              <div class="subhead">Kebutuhan Volume Produksi</div>
+              <table class="datatable">
+                <thead>
+                  <tr>
+                    <th>Material</th>
+                    <th class="num" id="mdProdHead">Total (kg)</th>
+                  </tr>
+                </thead>
+                <tbody id="mdProdBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================= RAB ============================= -->
+    <div class="view" id="view-rab">
+      <div class="app-head">
+        <div class="wrap">
+          <div class="crumbs">Beranda / RAB</div>
+          <h2>RAB Otomatis</h2>
+          <p>
+            Estimasi biaya produksi beton SemarOP dibanding beton konvensional,
+            dihitung otomatis dari hasil Mix Design dan harga satuan material.
+          </p>
+        </div>
+      </div>
+      <section class="app-body">
+        <div class="wrap">
+          <div class="panel-grid">
+            <div class="panel">
+              <h3>Harga Satuan Material</h3>
+              <div id="rabHargaFields"></div>
+              <div class="subhead">Koefisien Beton Konvensional (AHSP)</div>
+              <small class="hint" style="margin-bottom: 14px; display: block"
+                >Koefisien kg per m³ untuk beton normal mutu setara, dipakai
+                sebagai pembanding. Bisa disesuaikan bila mengacu AHSP daerah
+                masing-masing.</small
+              >
+              <div id="rabKoefFields"></div>
+            </div>
+
+            <div class="panel">
+              <h3>Perbandingan Biaya per m³</h3>
+              <div class="compare-bar">
+                <div class="cb-label">
+                  <span>Beton Konvensional</span
+                  ><span id="rabKonvLabel">–</span>
+                </div>
+                <div class="cb-track">
+                  <div class="cb-fill" id="rabKonvBar" style="width: 100%">
+                    <span class="cb-val" id="rabKonvVal"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="compare-bar">
+                <div class="cb-label">
+                  <span>Beton SemarOP</span><span id="rabOpLabel">–</span>
+                </div>
+                <div class="cb-track">
+                  <div class="cb-fill op" id="rabOpBar" style="width: 60%">
+                    <span class="cb-val" id="rabOpVal"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="savebox">
+                <div>
+                  <b id="rabSavingPct">–</b><br /><span
+                    >Penghematan biaya per m³ vs beton konvensional</span
+                  >
+                </div>
+                <div style="text-align: right">
+                  <b
+                    class="mono"
+                    id="rabSavingRp"
+                    style="color: var(--green); font-size: 18px"
+                    >–</b
+                  ><br /><span>Rp / m³</span>
+                </div>
+              </div>
+
+              <div class="subhead">Rincian Biaya per m³</div>
+              <table class="datatable">
+                <thead>
+                  <tr>
+                    <th>Material</th>
+                    <th class="num">Konvensional</th>
+                    <th class="num">SemarOP</th>
+                  </tr>
+                </thead>
+                <tbody id="rabTableBody"></tbody>
+              </table>
+
+              <div class="subhead">
+                Total Estimasi Volume Produksi (<span id="rabVolLabel">1</span>
+                m³)
+              </div>
+              <div class="resultcard" style="grid-template-columns: 1fr 1fr">
+                <div class="rc">
+                  <b id="rabTotalKonv">–</b
+                  ><small>Total Konvensional (Rp)</small>
+                </div>
+                <div class="rc">
+                  <b id="rabTotalOp">–</b><small>Total SemarOP (Rp)</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================= KARBON ============================= -->
+    <div class="view" id="view-karbon">
+      <div class="app-head">
+        <div class="wrap">
+          <div class="crumbs">Beranda / Emisi Karbon</div>
+          <h2>Emisi Karbon</h2>
+          <p>
+            Perbandingan jejak karbon relatif beton SemarOP terhadap beton
+            normal, mengikuti pendekatan Life Cycle Assessment (LCA) pada riset
+            ini.
+          </p>
+        </div>
+      </div>
+      <section class="app-body">
+        <div class="wrap">
+          <div class="panel-grid">
+            <div class="panel">
+              <h3>Faktor Emisi Material</h3>
+              <small class="hint" style="margin-bottom: 14px; display: block"
+                >Faktor emisi (kg CO₂ per kg material) — acuan literatur ICE
+                Database &amp; kajian RHA/RCA. Nilai dapat disesuaikan bila
+                memakai data EPD material lokal.</small
+              >
+              <div id="karbonFaktorFields"></div>
+              <div class="refbox">
+                <h4 class="mono">Sumber</h4>
+                <ul>
+                  <li>
+                    Suomie, R. W., Mishra, B. P., &amp; Das, S. (2025).
+                    Performance of rice husk ash (RHA) and recycled coarse
+                    aggregate (RCA) for sustainable concrete.
+                    <i>Next Materials, 8</i>, 100778.
+                  </li>
+                  <li>
+                    Hammond, G., &amp; Jones, C. (2011). Inventory of Carbon
+                    &amp; Energy (ICE) v2.0. University of Bath.
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3>Perbandingan Emisi per m³</h3>
+              <div class="compare-bar">
+                <div class="cb-label">
+                  <span>Beton Normal</span><span id="karbonNormalLabel">–</span>
+                </div>
+                <div class="cb-track">
+                  <div class="cb-fill" id="karbonNormalBar" style="width: 100%">
+                    <span class="cb-val" id="karbonNormalVal"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="compare-bar">
+                <div class="cb-label">
+                  <span>Beton SemarOP</span><span id="karbonOpLabel">–</span>
+                </div>
+                <div class="cb-track">
+                  <div class="cb-fill op" id="karbonOpBar" style="width: 60%">
+                    <span class="cb-val" id="karbonOpVal"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="savebox" style="border-color: var(--green)">
+                <div>
+                  <b id="karbonSavingPct">–</b><br /><span
+                    >Efisiensi emisi karbon SemarOP vs beton normal</span
+                  >
+                </div>
+              </div>
+
+              <div class="subhead">
+                Rincian Emisi per Material (relatif, kg CO₂/m³)
+              </div>
+              <table class="datatable">
+                <thead>
+                  <tr>
+                    <th>Material</th>
+                    <th class="num">Beton Normal</th>
+                    <th class="num">SemarOP</th>
+                  </tr>
+                </thead>
+                <tbody id="karbonTableBody"></tbody>
+              </table>
+
+              <div class="note-inline">
+                <b>Metodologi:</b> Emisi dihitung sebagai faktor emisi material
+                × volume material per m³ beton (mengikuti pendekatan LCA pada
+                riset ini), sehingga angka bersifat <i>relatif</i> untuk
+                perbandingan antar-campuran, bukan estimasi absolut kg CO₂ total
+                per m³.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <div class="wrap">
+        <a href="#" class="brand" data-nav="home"
+          ><span class="tag"></span>SEMAR<span style="color: var(--red-bright)"
+            >OP</span
+          ></a
+        >
+        <p>
+          Multi-Waste Upcycling Concrete — Beton Struktural Ekonomis &amp;
+          Rendah Karbon. Kalkulator ini menyertai hasil riset dan bersifat
+          estimasi untuk keperluan perencanaan awal.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      /* ======================================================================
+   DATA — sourced from MIX_DESIGN_BARU_SEMAR_OP.xlsx
+   (DATA MATERIAL, MIX DESIGN, RAB, KARBON sheets)
+====================================================================== */
+      const MATERIAL_DB = {
+        semen: [
+          {
+            id: "dinamix",
+            nama: "Semen Dinamix",
+            sumber: "Data Uji Lab",
+            bj: 3150,
+            harga: 1400,
+          },
+        ],
+        pasir: [
+          {
+            id: "merapi",
+            nama: "Pasir Merapi",
+            sumber: "Data Uji Lab (SSD)",
+            bj: 2631.5789473684213,
+            harga: 274.86,
+          },
+        ],
+        kerikil: [
+          {
+            id: "merapi",
+            nama: "Kerikil Merapi",
+            sumber: "Data Uji Lab (SSD)",
+            bj: 2522.9,
+            harga: 266.07,
+          },
+        ],
+        abu: [
+          {
+            id: "lab",
+            nama: "Limbah Abu Sekam Padi",
+            sumber: "Data Uji Lab (SSD)",
+            bj: 2109.074243813015,
+            harga: 0,
+          },
+        ],
+        granit: [
+          {
+            id: "lab",
+            nama: "Limbah Granit",
+            sumber: "Data Uji Lab (SSD)",
+            bj: 2690,
+            harga: 61,
+          },
+        ],
+        betonw: [
+          {
+            id: "lab",
+            nama: "Limbah Beton",
+            sumber: "Data Uji Lab (SSD)",
+            bj: 2570,
+            harga: 61,
+          },
+        ],
+        air: [
+          {
+            id: "std",
+            nama: "Air Bersih / PDAM",
+            sumber: "Standar",
+            bj: 1000,
+            harga: 500,
+          },
+        ],
+        sp: [
+          {
+            id: "visco",
+            nama: "Sika Viscocrete 1003",
+            sumber: "Data Produk",
+            bj: 1050,
+            harga: 45000,
+          },
+        ],
+      };
+
+      const CATLABEL = {
+        semen: "Semen",
+        pasir: "Pasir",
+        kerikil: "Kerikil",
+        abu: "Limbah Abu Sekam Padi",
+        granit: "Limbah Granit",
+        betonw: "Limbah Beton",
+        air: "Air",
+        sp: "Superplasticizer",
+      };
+      const CATCLASS = {
+        semen: "c-semen",
+        pasir: "c-pasir",
+        kerikil: "c-kerikil",
+        abu: "c-abusekam",
+        granit: "c-granit",
+        betonw: "c-beton",
+        air: "c-air",
+      };
+
+      let sel = {
+        semen: "dinamix",
+        pasir: "merapi",
+        kerikil: "merapi",
+        abu: "lab",
+        granit: "lab",
+        betonw: "lab",
+        air: "std",
+        sp: "visco",
+      };
+
+      function getMat(cat) {
+        return (
+          MATERIAL_DB[cat].find((m) => m.id === sel[cat]) || MATERIAL_DB[cat][0]
+        );
+      }
+
+      let rabHarga = {
+        semen: 1400,
+        pasir: 274.86,
+        kerikil: 266.07,
+        granit: 61,
+        abu: 0,
+        betonw: 61,
+        air: 500,
+        sp: 45000,
+      };
+      let rabKoefKonv = {
+        semen: 407,
+        pasir: 731,
+        kerikil: 1009,
+        granit: 0,
+        abu: 0,
+        betonw: 0,
+        air: 202,
+        sp: 0,
+      };
+      let karbonFaktor = {
+        semen: 0.93,
+        pasir: 0.002,
+        kerikil: 0.0052,
+        abu: 0.15,
+        granit: 0.003,
+        betonw: 0.003,
+      };
+
+      const fmt = (n, d = 2) =>
+        Number(n).toLocaleString("id-ID", {
+          minimumFractionDigits: d,
+          maximumFractionDigits: d,
+        });
+      const fmt0 = (n) => Number(Math.round(n)).toLocaleString("id-ID");
+      const fmtRp = (n) =>
+        "Rp " + Number(Math.round(n)).toLocaleString("id-ID");
+
+      /* ======================================================================
+   NAVIGATION
+====================================================================== */
+      function goto(name) {
+        document
+          .querySelectorAll(".view")
+          .forEach((v) => v.classList.remove("active"));
+        document.getElementById("view-" + name).classList.add("active");
+        document
+          .querySelectorAll("nav.mainnav button")
+          .forEach((b) => b.classList.toggle("active", b.dataset.nav === name));
+        document.getElementById("mainNav").classList.remove("open");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      document.querySelectorAll("[data-nav]").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          goto(el.dataset.nav);
+        });
+      });
+      document.getElementById("navToggle").addEventListener("click", () => {
+        document.getElementById("mainNav").classList.toggle("open");
+      });
+
+      /* ======================================================================
+   MIX DESIGN ENGINE — mirrors MIX DESIGN sheet formulas
+====================================================================== */
+      function readInputs() {
+        return {
+          fc: parseFloat(document.getElementById("i_fc").value) || 25,
+          sd: parseFloat(document.getElementById("i_sd").value) || 0,
+          fas: parseFloat(document.getElementById("i_fas").value) || 0.49,
+          air: parseFloat(document.getElementById("i_air").value) || 190,
+          agmax: parseFloat(document.getElementById("i_agmax").value) || 25,
+          udara: parseFloat(document.getElementById("i_udara").value) || 0,
+          semenBinder:
+            parseFloat(document.getElementById("i_semenBinder").value) || 80,
+          abuBinder:
+            parseFloat(document.getElementById("i_abuBinder").value) || 20,
+          kasarTotal:
+            parseFloat(document.getElementById("i_kasarTotal").value) || 60,
+          kerikil: parseFloat(document.getElementById("i_kerikil").value) || 45,
+          granit: parseFloat(document.getElementById("i_granit").value) || 50,
+          beton: parseFloat(document.getElementById("i_beton").value) || 5,
+          pasirHalus:
+            parseFloat(document.getElementById("i_pasirHalus").value) || 100,
+          mouldTipe: document.getElementById("i_mouldTipe").value,
+          mould_d:
+            parseFloat(document.getElementById("i_mould_d").value) || 0.15,
+          mould_t:
+            parseFloat(document.getElementById("i_mould_t").value) || 0.3,
+          mould_s:
+            parseFloat(document.getElementById("i_mould_s").value) || 0.15,
+          mould_p:
+            parseFloat(document.getElementById("i_mould_p").value) || 0.15,
+          mould_l:
+            parseFloat(document.getElementById("i_mould_l").value) || 0.15,
+          mould_h:
+            parseFloat(document.getElementById("i_mould_h").value) || 0.15,
+          jumlahMould:
+            parseFloat(document.getElementById("i_jumlahMould").value) || 6,
+          sf: parseFloat(document.getElementById("i_sf").value) || 1.35,
+          volProduksi:
+            parseFloat(document.getElementById("i_volproduksi").value) || 1,
+        };
+      }
+
+      function computeMix(inp) {
+        const bjSemen = getMat("semen").bj,
+          bjPasir = getMat("pasir").bj,
+          bjKerikil = getMat("kerikil").bj;
+        const bjAbu = getMat("abu").bj,
+          bjGranit = getMat("granit").bj,
+          bjBeton = getMat("betonw").bj,
+          bjSP = getMat("sp").bj;
+
+        const fracSemenBinder = inp.semenBinder / 100;
+        const fracAbuBinder = inp.abuBinder / 100;
+        const fracKasarTotal = inp.kasarTotal / 100;
+        const fracHalusTotal = 1 - fracKasarTotal;
+
+        const fracKerikilTotal = (inp.kerikil / 100) * fracKasarTotal;
+        const fracGranitTotal = (inp.granit / 100) * fracKasarTotal;
+        const fracBetonTotal = (inp.beton / 100) * fracKasarTotal;
+        const fracPasirTotal = (inp.pasirHalus / 100) * fracHalusTotal;
+
+        // Ga: weighted specific gravity of aggregates
+        const Ga =
+          fracPasirTotal * (bjPasir / 1000) +
+          fracKerikilTotal * (bjKerikil / 1000) +
+          fracGranitTotal * (bjGranit / 1000) +
+          fracBetonTotal * (bjBeton / 1000);
+        // Gc: weighted specific gravity of binder
+        const Gc =
+          fracSemenBinder * (bjSemen / 1000) + fracAbuBinder * (bjAbu / 1000);
+
+        const binder = inp.air / inp.fas; // F9
+        const fcr = inp.sd + inp.fc; // F12 (mengikuti pendekatan pada spreadsheet riset)
+
+        const spMassPct = 0; // SP% dari binder, default 0 sesuai riset
+        const spMass = (spMassPct / 100) * binder;
+
+        // U: unit weight (absolute-volume based empirical estimate)
+        const U =
+          10 * Ga * (100 - inp.udara) +
+          binder * (1 - Ga / Gc) -
+          (inp.air + spMass) * (Ga - 1);
+        const beratAgregat = U - binder - (inp.air + spMass) - inp.udara;
+
+        const semenKg = binder * fracSemenBinder;
+        const abuKg = binder * fracAbuBinder;
+        const airKg = inp.air;
+        const spKg = spMass;
+        const pasirKg = beratAgregat * fracPasirTotal;
+        const kerikilKg = beratAgregat * fracKerikilTotal;
+        const granitKg = beratAgregat * fracGranitTotal;
+        const betonKg = beratAgregat * fracBetonTotal;
+
+        const vol = {
+          semen: semenKg / bjSemen,
+          abu: abuKg / bjAbu,
+          air: airKg / 1000,
+          sp: spKg > 0 ? spKg / bjSP : 0,
+          pasir: pasirKg / bjPasir,
+          kerikil: kerikilKg / bjKerikil,
+          granit: granitKg / bjGranit,
+          betonw: betonKg / bjBeton,
+        };
+
+        let mouldVol;
+        if (inp.mouldTipe === "silinder")
+          mouldVol = Math.PI * Math.pow(inp.mould_d / 2, 2) * inp.mould_t;
+        else if (inp.mouldTipe === "kubus") mouldVol = Math.pow(inp.mould_s, 3);
+        else mouldVol = inp.mould_p * inp.mould_l * inp.mould_h;
+
+        const kg = {
+          semen: semenKg,
+          abu: abuKg,
+          air: airKg,
+          sp: spKg,
+          pasir: pasirKg,
+          kerikil: kerikilKg,
+          granit: granitKg,
+          betonw: betonKg,
+        };
+
+        const perMould = {},
+          totalMould = {},
+          prod = {};
+        Object.keys(kg).forEach((k) => {
+          perMould[k] = kg[k] * mouldVol * inp.sf;
+          totalMould[k] = perMould[k] * inp.jumlahMould;
+          prod[k] = kg[k] * inp.volProduksi;
+        });
+
+        return {
+          Ga,
+          Gc,
+          binder,
+          fcr,
+          U,
+          beratAgregat,
+          kg,
+          vol,
+          mouldVol,
+          perMould,
+          totalMould,
+          prod,
+          fracKerikilTotal,
+          fracGranitTotal,
+          fracBetonTotal,
+          fracPasirTotal,
+          fracSemenBinder,
+          fracAbuBinder,
+        };
+      }
+
+      let lastMix = null,
+        lastInp = null;
+
+      function renderRibbon(el, legendEl, kg) {
+        const total =
+          kg.semen +
+          kg.abu +
+          kg.pasir +
+          kg.kerikil +
+          kg.granit +
+          kg.betonw +
+          kg.air;
+        const parts = [
+          { k: "semen", c: "c-semen" },
+          { k: "abu", c: "c-abusekam" },
+          { k: "air", c: "c-air" },
+          { k: "pasir", c: "c-pasir" },
+          { k: "kerikil", c: "c-kerikil" },
+          { k: "granit", c: "c-granit" },
+          { k: "betonw", c: "c-beton" },
+        ];
+        el.innerHTML = parts
+          .map((p) => {
+            const pct = total > 0 ? (kg[p.k] / total) * 100 : 0;
+            return `<div class="seg ${p.c}" style="width:${pct.toFixed(2)}%"></div>`;
+          })
+          .join("");
+        legendEl.innerHTML = parts
+          .map((p) => {
+            const pct = total > 0 ? (kg[p.k] / total) * 100 : 0;
+            return `<span><span class="dot ${p.c}"></span>${CATLABEL[p.k] || p.k} ${pct.toFixed(1)}%</span>`;
+          })
+          .join("");
+      }
+
+      function syncSumChecks(inp) {
+        const sumBinder = inp.semenBinder + inp.abuBinder;
+        const bEl = document.getElementById("sumBinder");
+        bEl.textContent = "";
+        bEl.className =
+          "sumcheck " + (Math.abs(sumBinder - 100) < 0.01 ? "ok" : "bad");
+        bEl.innerHTML = `Total Binder: ${sumBinder.toFixed(0)}% <span>${Math.abs(sumBinder - 100) < 0.01 ? "OK" : "≠ 100%"}</span>`;
+
+        const sumKasar = inp.kerikil + inp.granit + inp.beton;
+        const kEl = document.getElementById("sumKasar");
+        kEl.className =
+          "sumcheck " + (Math.abs(sumKasar - 100) < 0.01 ? "ok" : "bad");
+        kEl.innerHTML = `Total Agregat Kasar: ${sumKasar.toFixed(0)}% <span>${Math.abs(sumKasar - 100) < 0.01 ? "OK" : "≠ 100%"}</span>`;
+      }
+
+      function renderMixTables(mix, inp) {
+        const rows = [
+          ["semen", getMat("semen").nama],
+          ["abu", "Limbah Abu Sekam Padi"],
+          ["air", "Air"],
+          ["pasir", getMat("pasir").nama],
+          ["kerikil", getMat("kerikil").nama],
+          ["granit", "Limbah Granit"],
+          ["betonw", "Limbah Beton"],
+        ];
+        document.getElementById("mdTableBody").innerHTML =
+          rows
+            .map(
+              ([k, label]) => `
+    <tr><td class="label">${label}</td><td class="num">${fmt(mix.kg[k], 2)}</td><td class="num">${fmt(mix.vol[k], 4)}</td></tr>
+  `,
+            )
+            .join("") +
+          `<tr class="total"><td class="label">Total</td><td class="num">${fmt(mix.kg.semen + mix.kg.abu + mix.kg.air + mix.kg.pasir + mix.kg.kerikil + mix.kg.granit + mix.kg.betonw, 2)}</td><td class="num">${fmt(mix.vol.semen + mix.vol.abu + mix.vol.air + mix.vol.pasir + mix.vol.kerikil + mix.vol.granit + mix.vol.betonw, 4)}</td></tr>`;
+
+        document.getElementById("mdMouldTotalHead").textContent =
+          `${inp.jumlahMould} Mould (kg)`;
+        document.getElementById("mdMouldBody").innerHTML = rows
+          .map(
+            ([k, label]) => `
+    <tr><td class="label">${label}</td><td class="num">${fmt(mix.perMould[k], 3)}</td><td class="num">${fmt(mix.totalMould[k], 3)}</td></tr>
+  `,
+          )
+          .join("");
+        document.getElementById("mdMouldVolHint").textContent =
+          `Volume 1 mould: ${fmt(mix.mouldVol, 6)} m³ · Faktor keamanan ${inp.sf}×`;
+
+        document.getElementById("mdProdHead").textContent =
+          `${inp.volProduksi} m³ (kg)`;
+        document.getElementById("mdProdBody").innerHTML = rows
+          .map(
+            ([k, label]) => `
+    <tr><td class="label">${label}</td><td class="num">${fmt0(mix.prod[k])}</td></tr>
+  `,
+          )
+          .join("");
+      }
+
+      function computeAndRenderMix() {
+        const inp = readInputs();
+        syncSumChecks(inp);
+        const mix = computeMix(inp);
+        lastMix = mix;
+        lastInp = inp;
+
+        document.getElementById("r_binder").textContent = fmt0(
+          mix.kg.semen + mix.kg.abu,
+        );
+        document.getElementById("r_agregat").textContent = fmt0(
+          mix.beratAgregat,
+        );
+        document.getElementById("r_unitweight").textContent = fmt0(mix.U);
+
+        renderRibbon(
+          document.getElementById("mdRibbon"),
+          document.getElementById("mdLegend"),
+          mix.kg,
+        );
+        renderMixTables(mix, inp);
+
+        renderRAB();
+        renderKarbon();
+        renderHomeStats();
+      }
+
+      /* live label updates */
+      function bindRange(id, valId, suffix) {
+        const el = document.getElementById(id);
+        const label = document.getElementById(valId);
+        el.addEventListener("input", () => {
+          label.textContent = el.value;
+          computeAndRenderMix();
+        });
+      }
+      [
+        "i_fc",
+        "i_sd",
+        "i_fas",
+        "i_air",
+        "i_agmax",
+        "i_udara",
+        "i_semenBinder",
+        "i_abuBinder",
+        "i_kasarTotal",
+        "i_kerikil",
+        "i_granit",
+        "i_beton",
+        "i_pasirHalus",
+        "i_volproduksi",
+      ].forEach((id) => {
+        const valId = "v_" + id.replace("i_", "");
+        const el = document.getElementById(id);
+        if (document.getElementById(valId)) {
+          el.addEventListener("input", () => {
+            document.getElementById(valId).textContent = el.value;
+            computeAndRenderMix();
+          });
+        } else {
+          el.addEventListener("input", computeAndRenderMix);
+        }
+      });
+      [
+        "i_mouldTipe",
+        "i_mould_d",
+        "i_mould_t",
+        "i_mould_s",
+        "i_mould_p",
+        "i_mould_l",
+        "i_mould_h",
+        "i_jumlahMould",
+        "i_sf",
+      ].forEach((id) => {
+        document
+          .getElementById(id)
+          .addEventListener("input", computeAndRenderMix);
+      });
+      document.getElementById("i_mouldTipe").addEventListener("change", () => {
+        const t = document.getElementById("i_mouldTipe").value;
+        document.getElementById("mouldDimsSilinder").style.display =
+          t === "silinder" ? "grid" : "none";
+        document.getElementById("mouldDimsKubus").style.display =
+          t === "kubus" ? "block" : "none";
+        document.getElementById("mouldDimsBalok").style.display =
+          t === "balok" ? "grid" : "none";
+        computeAndRenderMix();
+      });
+
+      /* ======================================================================
+   DATA MATERIAL PAGE
+====================================================================== */
+      function renderMaterialCards() {
+        const cats = [
+          "semen",
+          "pasir",
+          "kerikil",
+          "abu",
+          "granit",
+          "betonw",
+          "air",
+          "sp",
+        ];
+        const wrap = document.getElementById("materialCards");
+        wrap.innerHTML = cats
+          .map((cat) => {
+            const opts = MATERIAL_DB[cat]
+              .map(
+                (m) =>
+                  `<option value="${m.id}" ${sel[cat] === m.id ? "selected" : ""}>${m.nama}</option>`,
+              )
+              .join("");
+            const m = getMat(cat);
+            return `<div class="materialcard">
+      <div class="mc-top"><h4><span class="dot ${CATCLASS[cat] || ""}" style="display:inline-block;width:9px;height:9px;margin-right:6px;"></span>${CATLABEL[cat]}</h4><span class="badge ${cat === "granit" || cat === "betonw" || cat === "abu" ? "" : "stone"}">${cat === "granit" || cat === "betonw" || cat === "abu" ? "Limbah" : "Standar"}</span></div>
+      <select data-cat="${cat}">${opts}</select>
+      <div class="mc-specs">
+        <div>BJ: <b>${fmt(m.bj, 1)}</b> kg/m³</div>
+        <div>Harga: <b>${fmtRp(m.harga)}</b> /kg</div>
+        <div>Sumber: <b>${m.sumber}</b></div>
+      </div>
+    </div>`;
+          })
+          .join("");
+        wrap.querySelectorAll("select").forEach((s) => {
+          s.addEventListener("change", () => {
+            sel[s.dataset.cat] = s.value;
+            renderMaterialCards();
+            computeAndRenderMix();
+          });
+        });
+      }
+
+      /* ======================================================================
+   RAB ENGINE — mirrors RAB sheet
+====================================================================== */
+      function renderRabFields() {
+        const hargaWrap = document.getElementById("rabHargaFields");
+        const cats = [
+          "semen",
+          "pasir",
+          "kerikil",
+          "granit",
+          "abu",
+          "betonw",
+          "air",
+          "sp",
+        ];
+        hargaWrap.innerHTML = cats
+          .map(
+            (cat) => `
+    <div class="field"><label>${CATLABEL[cat]} <span class="val">${fmtRp(rabHarga[cat])}</span></label>
+      <input type="number" data-harga="${cat}" value="${rabHarga[cat]}" step="1" min="0"></div>
+  `,
+          )
+          .join("");
+        hargaWrap.querySelectorAll("input").forEach((inp) => {
+          inp.addEventListener("input", () => {
+            rabHarga[inp.dataset.harga] = parseFloat(inp.value) || 0;
+            renderRAB();
+          });
+        });
+
+        const koefWrap = document.getElementById("rabKoefFields");
+        koefWrap.innerHTML = cats
+          .map(
+            (cat) => `
+    <div class="field"><label>${CATLABEL[cat]} <span class="val">${fmt0(rabKoefKonv[cat])} kg</span></label>
+      <input type="number" data-koef="${cat}" value="${rabKoefKonv[cat]}" step="1" min="0"></div>
+  `,
+          )
+          .join("");
+        koefWrap.querySelectorAll("input").forEach((inp) => {
+          inp.addEventListener("input", () => {
+            rabKoefKonv[inp.dataset.koef] = parseFloat(inp.value) || 0;
+            renderRAB();
+          });
+        });
+      }
+
+      function renderRAB() {
+        if (!lastMix) return;
+        const cats = [
+          "semen",
+          "pasir",
+          "kerikil",
+          "granit",
+          "abu",
+          "betonw",
+          "air",
+          "sp",
+        ];
+        const opKg = {
+          semen: lastMix.kg.semen,
+          pasir: lastMix.kg.pasir,
+          kerikil: lastMix.kg.kerikil,
+          granit: lastMix.kg.granit,
+          abu: lastMix.kg.abu,
+          betonw: lastMix.kg.betonw,
+          air: lastMix.kg.air,
+          sp: lastMix.kg.sp,
+        };
+
+        let totalKonv = 0,
+          totalOp = 0;
+        const rowsHtml = cats
+          .map((cat) => {
+            const konvCost = rabKoefKonv[cat] * rabHarga[cat];
+            const opCost = opKg[cat] * rabHarga[cat];
+            totalKonv += konvCost;
+            totalOp += opCost;
+            return `<tr><td class="label">${CATLABEL[cat]}</td><td class="num">${fmtRp(konvCost)}</td><td class="num">${fmtRp(opCost)}</td></tr>`;
+          })
+          .join("");
+        document.getElementById("rabTableBody").innerHTML =
+          rowsHtml +
+          `<tr class="total"><td class="label">Total / m³</td><td class="num">${fmtRp(totalKonv)}</td><td class="num">${fmtRp(totalOp)}</td></tr>`;
+
+        const saving = totalKonv - totalOp;
+        const savingPct = totalKonv > 0 ? (saving / totalKonv) * 100 : 0;
+
+        document.getElementById("rabKonvLabel").textContent = fmtRp(totalKonv);
+        document.getElementById("rabOpLabel").textContent = fmtRp(totalOp);
+        document.getElementById("rabKonvVal").textContent = fmtRp(totalKonv);
+        document.getElementById("rabOpVal").textContent = fmtRp(totalOp);
+        document.getElementById("rabKonvBar").style.width = "100%";
+        document.getElementById("rabOpBar").style.width =
+          totalKonv > 0 ? Math.max(8, (totalOp / totalKonv) * 100) + "%" : "0%";
+
+        document.getElementById("rabSavingPct").textContent =
+          savingPct.toFixed(2) + "%";
+        document.getElementById("rabSavingRp").textContent = fmtRp(saving);
+
+        const vol = lastInp ? lastInp.volProduksi : 1;
+        document.getElementById("rabVolLabel").textContent = vol;
+        document.getElementById("rabTotalKonv").textContent = fmtRp(
+          totalKonv * vol,
+        );
+        document.getElementById("rabTotalOp").textContent = fmtRp(
+          totalOp * vol,
+        );
+      }
+
+      /* ======================================================================
+   KARBON ENGINE — mirrors KARBON sheet
+====================================================================== */
+      function renderKarbonFields() {
+        const wrap = document.getElementById("karbonFaktorFields");
+        const cats = ["semen", "pasir", "kerikil", "abu", "granit", "betonw"];
+        wrap.innerHTML = cats
+          .map(
+            (cat) => `
+    <div class="field"><label>${CATLABEL[cat]} <span class="val">${karbonFaktor[cat]}</span></label>
+      <input type="number" data-faktor="${cat}" value="${karbonFaktor[cat]}" step="0.001" min="0"></div>
+  `,
+          )
+          .join("");
+        wrap.querySelectorAll("input").forEach((inp) => {
+          inp.addEventListener("input", () => {
+            karbonFaktor[inp.dataset.faktor] = parseFloat(inp.value) || 0;
+            renderKarbon();
+          });
+        });
+      }
+
+      function renderKarbon() {
+        if (!lastMix) return;
+        const bjSemen = getMat("semen").bj,
+          bjPasir = getMat("pasir").bj,
+          bjKerikil = getMat("kerikil").bj;
+        const bjAbu = getMat("abu").bj,
+          bjGranit = getMat("granit").bj,
+          bjBeton = getMat("betonw").bj;
+
+        // Beton normal: volume dari koefisien konvensional (RAB) / BJ
+        const volNormal = {
+          semen: rabKoefKonv.semen / bjSemen,
+          pasir: rabKoefKonv.pasir / bjPasir,
+          kerikil: rabKoefKonv.kerikil / bjKerikil,
+        };
+        const emisiNormal = {
+          semen: karbonFaktor.semen * volNormal.semen,
+          pasir: karbonFaktor.pasir * volNormal.pasir,
+          kerikil: karbonFaktor.kerikil * volNormal.kerikil,
+        };
+        const totalNormal =
+          emisiNormal.semen + emisiNormal.pasir + emisiNormal.kerikil;
+
+        const volOp = lastMix.vol;
+        const emisiOp = {
+          semen: karbonFaktor.semen * volOp.semen,
+          pasir: karbonFaktor.pasir * volOp.pasir,
+          kerikil: karbonFaktor.kerikil * volOp.kerikil,
+          abu: karbonFaktor.abu * volOp.abu,
+          granit: karbonFaktor.granit * volOp.granit,
+          betonw: karbonFaktor.betonw * volOp.betonw,
+        };
+        const totalOp =
+          emisiOp.semen +
+          emisiOp.pasir +
+          emisiOp.kerikil +
+          emisiOp.abu +
+          emisiOp.granit +
+          emisiOp.betonw;
+
+        const selisih = totalNormal - totalOp;
+        const efisiensi = totalNormal > 0 ? (selisih / totalNormal) * 100 : 0;
+
+        const rows = [
+          ["semen", "Semen"],
+          ["pasir", "Pasir"],
+          ["kerikil", "Kerikil"],
+          ["abu", "Limbah Abu Sekam Padi"],
+          ["granit", "Limbah Granit"],
+          ["betonw", "Limbah Beton"],
+        ];
+        document.getElementById("karbonTableBody").innerHTML =
+          rows
+            .map(([k, label]) => {
+              const nv =
+                emisiNormal[k] !== undefined ? fmt(emisiNormal[k], 5) : "–";
+              const ov = emisiOp[k] !== undefined ? fmt(emisiOp[k], 5) : "–";
+              return `<tr><td class="label">${label}</td><td class="num">${nv}</td><td class="num">${ov}</td></tr>`;
+            })
+            .join("") +
+          `<tr class="total"><td class="label">Total</td><td class="num">${fmt(totalNormal, 5)}</td><td class="num">${fmt(totalOp, 5)}</td></tr>`;
+
+        document.getElementById("karbonNormalLabel").textContent =
+          fmt(totalNormal, 4) + " kg CO₂/m³";
+        document.getElementById("karbonOpLabel").textContent =
+          fmt(totalOp, 4) + " kg CO₂/m³";
+        document.getElementById("karbonNormalVal").textContent = fmt(
+          totalNormal,
+          4,
+        );
+        document.getElementById("karbonOpVal").textContent = fmt(totalOp, 4);
+        document.getElementById("karbonNormalBar").style.width = "100%";
+        document.getElementById("karbonOpBar").style.width =
+          totalNormal > 0
+            ? Math.max(8, (totalOp / totalNormal) * 100) + "%"
+            : "0%";
+        document.getElementById("karbonSavingPct").textContent =
+          efisiensi.toFixed(2) + "%";
+
+        window._lastKarbon = { totalNormal, totalOp, efisiensi };
+      }
+
+      function renderHomeStats() {
+        if (!window._lastKarbon) return;
+        document.getElementById("homeEmisiNormal").textContent = fmt(
+          window._lastKarbon.totalNormal,
+          3,
+        );
+        document.getElementById("homeEmisiOP").textContent = fmt(
+          window._lastKarbon.totalOp,
+          3,
+        );
+        document.getElementById("homeEmisiSaving").textContent =
+          window._lastKarbon.efisiensi.toFixed(1) + "%";
+      }
+
+      /* ======================================================================
+   INIT
+====================================================================== */
+      function initHeroRibbon() {
+        // static reference ribbon for hero based on default composition (binder+agregat mass shares, illustrative)
+        const inp = {
+          semenBinder: 80,
+          abuBinder: 20,
+          kasarTotal: 60,
+          kerikil: 45,
+          granit: 50,
+          beton: 5,
+          pasirHalus: 100,
+          air: 190,
+          fas: 0.49,
+          agmax: 25,
+          udara: 0,
+          fc: 25,
+          sd: 4.5,
+          mouldTipe: "silinder",
+          mould_d: 0.15,
+          mould_t: 0.3,
+          mould_s: 0.15,
+          mould_p: 0.15,
+          mould_l: 0.15,
+          mould_h: 0.15,
+          jumlahMould: 6,
+          sf: 1.35,
+          volProduksi: 1,
+        };
+        const mix = computeMix(inp);
+        renderRibbon(
+          document.getElementById("heroRibbon"),
+          document.getElementById("heroLegend"),
+          mix.kg,
+        );
+      }
+
+      renderMaterialCards();
+      renderRabFields();
+      renderKarbonFields();
+      computeAndRenderMix();
+      initHeroRibbon();
+    </script>
+  </body>
+</html>
